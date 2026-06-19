@@ -7,7 +7,6 @@ npm install
 npm start
 ```
 
-Then open `frontend/index.html`.
+Then open `frontend/index.html` in your browser.
 
-## API base
-`http://localhost:3000/api/v1`
+API base: `http://localhost:3000/api/v1`
