@@ -1,4 +1,4 @@
-# BBIS Integrated Burma Birds Portal
+# BBIS Fixed Latest Version
 
 ## Run backend
 ```bash
@@ -7,6 +7,12 @@ npm install
 npm start
 ```
 
-Then open `frontend/index.html` in your browser.
+Backend runs on `http://localhost:8000`.
 
-API base: `http://localhost:3000/api/v1`
+## Frontend
+Open `frontend/index.html`.
+
+## API base
+`window.BBIS_API_BASE = "http://localhost:8000/api/v1";`
+
+For GitHub Pages, set `window.BBIS_API_BASE` to your deployed backend URL.
