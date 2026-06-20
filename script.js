@@ -113,13 +113,56 @@ function renderLists() {
   `).join("") : '<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-4 text-sm text-slate-400">No documents uploaded yet.</div>';
 }
 function setFeaturedCard() {
-  const featured = state.species.find(s => normalize(s.common_name).includes("hornbill")) || state.species[0];
-  if (!featured) return;
-  $("#heroImage").src = featured.image_url || featured.photo_url || $("#heroImage").src;
-  $("#heroName").textContent = speciesDisplayName(featured);
-  $("#heroSci").textContent = featured.scientific_name || "";
-  $("#heroStatus").textContent = featured.iucn_status || "Unassessed";
-  $("#heroHabitat").textContent = (featured.habitats && featured.habitats.length) ? featured.habitats.join(", ") : (featured.description || "No habitat data");
+  if (!state.species || state.species.length === 0) return;
+
+  const featured =
+    state.species.find(s =>
+      normalize(s.common_name || "").includes("hornbill")
+    ) || state.species[0];
+
+  const heroImage = document.getElementById("heroImage");
+  const heroName = document.getElementById("heroName");
+  const heroSci = document.getElementById("heroSci");
+  const heroStatus = document.getElementById("heroStatus");
+  const heroHabitat = document.getElementById("heroHabitat");
+
+  if (heroImage) {
+    heroImage.src =
+      featured.image_url ||
+      featured.photo_url ||
+      heroImage.src;
+
+    heroImage.alt =
+      featured.common_name ||
+      featured.scientific_name ||
+      "Featured species";
+  }
+
+  if (heroName) {
+    heroName.textContent =
+      featured.common_name ||
+      featured.scientific_name ||
+      "Unknown species";
+  }
+
+  if (heroSci) {
+    heroSci.textContent =
+      featured.scientific_name || "";
+  }
+
+  if (heroStatus) {
+    heroStatus.textContent =
+      featured.iucn_status || "Unassessed";
+  }
+
+  if (heroHabitat) {
+    if (Array.isArray(featured.habitats) && featured.habitats.length > 0) {
+      heroHabitat.textContent = featured.habitats.join(", ");
+    } else {
+      heroHabitat.textContent =
+        featured.description || "Habitat information unavailable.";
+    }
+  }
 }
 function applyFilters() {
   const search = normalize($("#searchInput")?.value);
