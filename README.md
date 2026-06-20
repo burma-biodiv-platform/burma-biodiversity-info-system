@@ -9,7 +9,3 @@ Myanmar Biodiversity Information System (MBIS)A classical and modern ornithology
 └── README.md            # Repository documentation (this file)
 Setup & Running Instructions1. Run the Backend ServerMake sure you have Node.js installed, then run the following commands in your terminal:# Install required dependencies
 npm install
-
-# Start the Express server on port 8000
-npm start
-2. Launch the Frontend PortalTo avoid CORS blockages from local browser execution, serve the frontend files using a static server:With VS Code: Open index.html and click Go Live via the Live Server extension.With Node.js: Run npx serve . in your directory.With Python: Run python -m http.server 3000 and navigate to http://localhost:3000.
