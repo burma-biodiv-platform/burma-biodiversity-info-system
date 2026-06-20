@@ -1,0 +1,29 @@
+Dependency directories
+
+node_modules/
+jspm_packages/
+web_modules/
+
+Local databases (SQLite)
+
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+Uploads directory (dynamic user content)
+
+uploads/
+
+Environment variables
+
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+Operating System files
+
+.DS_Store
+Thumbs.db
