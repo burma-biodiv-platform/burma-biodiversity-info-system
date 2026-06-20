@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Myanmar Biodiversity Info System (MBIS)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    window.BBIS_API_BASE = window.BBIS_API_BASE || "http://localhost:8000/api/v1";
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+  
+  <!-- STANDALONE FAILOVER SYSTEM NOTICE BANNER -->
+  <div id="offlineBanner" class="hidden bg-gradient-to-r from-amber-600 to-amber-800 text-center py-2 px-4 text-xs font-semibold text-slate-100 flex items-center justify-center gap-2">
+    <span>⚠️ Standalone Showcase Mode (Backend API Unreachable)</span>
+    <span class="bg-amber-950 px-2 py-0.5 rounded text-[10px] text-amber-200">Local State Simulated</span>
+  </div>
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-50 border-b border-white/10 bg-slate-950/95 backdrop-blur-md">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
+      <a href="#home" class="flex items-center gap-3" data-tab="home">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-emerald-600 to-amber-500 shadow-lg shadow-emerald-950/20">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-white">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1.5M12 18.75V21m-7.5-9h1.5m13.5 0h1.5M5.061 5.062L6.122 6.12M17.88 17.88l1.06 1.06M4.03 16.14l1.06-1.06M17.88 6.121l1.06 1.061M12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-base tracking-tight bg-gradient-to-r from-emerald-400 to-amber-300 bg-clip-text text-transparent">MBIS PORTAL</h1>
+          <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Myanmar Birds</p>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center gap-1 bg-slate-900/60 p-1 rounded-xl border border-white/5">
+        <button data-tab="home" class="nav-pill active">Home</button>
+        <button data-tab="species" class="nav-pill">Species Explorer</button>
+        <button data-tab="map" class="nav-pill">Biogeography Map</button>
+        <button data-tab="wizard" class="nav-pill">Bird ID Wizard</button>
+        <button data-tab="observations" class="nav-pill">Observations</button>
+        <button data-tab="documents" class="nav-pill">Documents</button>
+        <button data-tab="about" class="nav-pill">About</button>
+      </nav>
+
+      <!-- Support Project CTA -->
+      <div class="hidden sm:flex items-center gap-3">
+        <a href="support.html" class="text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors">Support Portal</a>
+      </div>
+
+      <!-- Mobile Menu Toggle -->
+      <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-white/10">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Dropdown Menu -->
+  <div id="mobileNav" class="hidden md:hidden border-b border-white/10 bg-slate-950 p-4 space-y-2 animate-fadeIn">
+    <button data-tab="home" class="block w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-900">Home</button>
+    <button data-tab="species" class="block w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-900">Species Explorer</button>
+    <button data-tab="map" class="block w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-900">Biogeography Map</button>
+    <button data-tab="wizard" class="block w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-900">Bird ID Wizard</button>
+    <button data-tab="observations" class="block w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-900">Observations</button>
+    <button data-tab="documents" class="block w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-900">Documents</button>
+    <button data-tab="about" class="block w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-slate-900">About</button>
+    <a href="support.html" class="block w-full text-left px-3 py-2 rounded-lg text-sm text-amber-400 hover:bg-slate-900">Support Project</a>
+  </div>
+
+  <!-- MAIN WRAPPER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+
+    <!-- TAB: HOME (DASHBOARD) -->
+    <section id="tab-home" class="panel active space-y-6">
+      
+      <!-- HERO BANNER -->
+      <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950/40 p-8 sm:p-12 shadow-xl">
+        <div class="relative z-10 max-w-2xl space-y-4">
+          <span class="inline-block px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-bold text-emerald-400 uppercase tracking-widest">
+            Classical Ornithology & Science
+          </span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-tight">
+            Preserving Myanmar's Avian Heritage
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+            Bridging legendary historical catalogs of Bertram E. Smythies and Major H.H. Harington with modern biodiversity surveys and global IUCN threat statuses.
+          </p>
+          <div class="flex flex-wrap gap-3 pt-2">
+            <button data-tab="species" class="btn-primary">Explore Species Catalogue</button>
+            <button data-tab="map" class="btn-secondary">View Regional Map</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PORTAL SUMMARY STATISTICS -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="stat-card">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Avian Species</p>
+          <h3 id="statSpeciesCount" class="text-3xl font-black text-emerald-400 mt-1">--</h3>
+          <p class="text-[10px] text-slate-500 mt-1">Catalogued profiles</p>
+        </div>
+        <div class="stat-card">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Observations</p>
+          <h3 id="statObservationsCount" class="text-3xl font-black text-amber-400 mt-1">--</h3>
+          <p class="text-[10px] text-slate-500 mt-1">Field entries logged</p>
+        </div>
+        <div class="stat-card">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Documents</p>
+          <h3 id="statDocumentsCount" class="text-3xl font-black text-sky-400 mt-1">--</h3>
+          <p class="text-[10px] text-slate-500 mt-1">Books & research</p>
+        </div>
+        <div class="stat-card">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Protected States</p>
+          <h3 class="text-3xl font-black text-violet-400 mt-1">14</h3>
+          <p class="text-[10px] text-slate-500 mt-1">Covered in habitat map</p>
+        </div>
+      </div>
+
+      <!-- DASHBOARD SPLIT GRID -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Recent Catalogues -->
+        <div class="panel-card space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-lg text-slate-100">Featured Species</h3>
+            <button data-tab="species" class="text-xs font-semibold text-emerald-400 hover:underline">See All</button>
+          </div>
+          <div id="recentSpeciesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="text-slate-500 text-xs p-4">Loading active taxon catalog...</div>
+          </div>
+        </div>
+
+        <!-- Recent Field Sightings -->
+        <div class="panel-card space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-lg text-slate-100">Recent Sighting Entries</h3>
+            <button data-tab="observations" class="text-xs font-semibold text-emerald-400 hover:underline">Log Sighting</button>
+          </div>
+          <div id="recentObservationsList" class="space-y-2.5">
+            <div class="text-slate-500 text-xs p-4">Loading recent sightings...</div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- TAB: SPECIES EXPLORER -->
+    <section id="tab-species" class="panel space-y-6">
+      
+      <!-- Search and Filter Panel -->
+      <div class="panel-card space-y-4">
+        <h2 class="text-2xl font-black">Ornithological Species Catalog</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="relative">
+            <input id="speciesSearchInput" type="text" placeholder="Search by name, family, status..." class="input" />
+          </div>
+          <select id="speciesFilterFamily" class="input">
+            <option value="All">All Families</option>
+          </select>
+          <select id="speciesFilterStatus" class="input">
+            <option value="All">All IUCN Statuses</option>
+            <option value="Least Concern">Least Concern</option>
+            <option value="Vulnerable">Vulnerable</option>
+            <option value="Endangered">Endangered</option>
+            <option value="Critically Endangered">Critically Endangered</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Main Catalog Output -->
+      <div id="speciesExplorerGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rendered dynamically via script.js -->
+      </div>
+
+    </section>
+
+
+    <!-- TAB: BIOGEOGRAPHY INTERACTIVE MAP -->
+    <section id="tab-map" class="panel space-y-6">
+      <div class="panel-card space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-black">Biogeographical Range Maps</h2>
+            <p class="text-sm text-slate-300">Click a State or Region to filter species and observation metrics historically documented there.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="selectedRegionLabel" class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/25 px-3 py-1 rounded-full">All Myanmar</span>
+            <button id="clearMapFilter" class="btn-secondary text-xs px-2.5 py-1 hidden">Clear Filter</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          <!-- Interactive SVG Map of Myanmar -->
+          <div class="lg:col-span-7 bg-slate-900 border border-white/5 rounded-2xl p-6 flex items-center justify-center min-h-[500px]">
+            <svg id="myanmarSvgMap" viewBox="0 0 300 500" class="w-full max-h-[480px]">
+              <path id="path-Kachin" d="M 150 20 L 190 40 L 195 80 L 175 110 L 160 120 L 135 100 L 120 70 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-emerald-950/70 stroke-slate-950" stroke-width="1.5"><title>Kachin State</title></path>
+              <path id="path-Sagaing" d="M 120 70 L 135 100 L 125 130 L 115 150 L 95 140 L 85 100 L 95 65 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-teal-950/70 stroke-slate-950" stroke-width="1.5"><title>Sagaing Region</title></path>
+              <path id="path-Shan" d="M 160 120 L 220 140 L 240 180 L 200 230 L 165 210 L 155 160 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-amber-950/70 stroke-slate-950" stroke-width="1.5"><title>Shan State</title></path>
+              <path id="path-Chin" d="M 85 100 L 95 140 L 80 180 L 70 150 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-blue-950/70 stroke-slate-950" stroke-width="1.5"><title>Chin State</title></path>
+              <path id="path-Mandalay" d="M 125 130 L 155 160 L 145 190 L 125 180 L 115 150 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-yellow-950/70 stroke-slate-950" stroke-width="1.5"><title>Mandalay Region</title></path>
+              <path id="path-Magway" d="M 115 150 L 125 180 L 110 210 L 90 200 L 80 180 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-fuchsia-950/70 stroke-slate-950" stroke-width="1.5"><title>Magway Region</title></path>
+              <path id="path-Rakhine" d="M 80 180 L 90 200 L 100 230 L 85 260 L 65 230 L 70 190 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-indigo-950/70 stroke-slate-950" stroke-width="1.5"><title>Rakhine State</title></path>
+              <path id="path-Bago" d="M 125 180 L 145 190 L 150 230 L 135 245 L 120 230 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-violet-950/70 stroke-slate-950" stroke-width="1.5"><title>Bago Region</title></path>
+              <path id="path-Ayeyarwady" d="M 100 230 L 120 230 L 115 270 L 90 270 L 85 260 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-cyan-950/70 stroke-slate-950" stroke-width="1.5"><title>Ayeyarwady Region</title></path>
+              <path id="path-Yangon" d="M 120 230 L 135 245 L 130 260 L 118 258 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-rose-950/70 stroke-slate-950" stroke-width="1.5"><title>Yangon Region</title></path>
+              <path id="path-Kayah" d="M 165 210 L 175 225 L 160 235 L 150 220 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-emerald-900/60 stroke-slate-950" stroke-width="1.5"><title>Kayah State</title></path>
+              <path id="path-Kayin" d="M 150 220 L 160 235 L 170 280 L 155 310 L 135 245 L 150 230 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-emerald-950/80 stroke-slate-950" stroke-width="1.5"><title>Kayin State</title></path>
+              <path id="path-Mon" d="M 135 245 L 155 310 L 145 330 L 135 300 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-purple-950/70 stroke-slate-950" stroke-width="1.5"><title>Mon State</title></path>
+              <path id="path-Tanintharyi" d="M 145 330 L 160 360 L 175 420 L 190 480 L 175 480 L 150 390 L 135 330 Z" class="map-state cursor-pointer transition-all hover:fill-emerald-500 fill-red-950/70 stroke-slate-950" stroke-width="1.5"><title>Tanintharyi Region</title></path>
+              
+              <!-- Map Labels -->
+              <text x="140" y="70" fill="#ffffff" font-size="8" font-weight="bold" opacity="0.6" pointer-events="none">KACHIN</text>
+              <text x="180" y="170" fill="#ffffff" font-size="8" font-weight="bold" opacity="0.6" pointer-events="none">SHAN</text>
+              <text x="50" y="130" fill="#ffffff" font-size="8" font-weight="bold" opacity="0.6" pointer-events="none">CHIN</text>
+              <text x="145" y="420" fill="#ffffff" font-size="8" font-weight="bold" opacity="0.6" pointer-events="none">TENASSERIM</text>
+            </svg>
+          </div>
+
+          <!-- Regional Birds sidebar -->
+          <div class="lg:col-span-5 flex flex-col justify-between space-y-4">
+            <div class="bg-slate-900 p-4 rounded-xl border border-white/5 space-y-1">
+              <span id="regionSidebarHeader" class="text-xs uppercase tracking-wider text-slate-400 font-bold">Active Region: Myanmar Global</span>
+              <h4 id="regionSidebarTitle" class="text-lg font-bold text-emerald-400">All Catalogued Wildlife</h4>
+              <p id="regionSidebarDesc" class="text-xs text-slate-400 leading-relaxed">
+                Clicking on a region map displays endemic distributions and historical documentation by Bertram Smythies.
+              </p>
+            </div>
+
+            <div id="regionalSpeciesList" class="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+              <p class="text-slate-500 text-xs p-4">Select a region on the map to display catalogued regional bird populations.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- TAB: BIRD IDENTIFICATION WIZARD -->
+    <section id="tab-wizard" class="panel space-y-6">
+      <div class="panel-card space-y-4">
+        <div>
+          <h2 class="text-2xl font-black text-emerald-400">Avian Identification Wizard</h2>
+          <p class="text-xs text-slate-400 mt-1">Select the anatomical profiles observed to query the historical database for matching species.</p>
+        </div>
+
+        <form id="identifyForm" class="grid grid-cols-1 sm:grid-cols-3 gap-4" onsubmit="return false;">
+          <div class="space-y-2">
+            <label class="text-xs font-bold uppercase text-slate-300">Estimated Size</label>
+            <select id="wizardSize" class="input">
+              <option value="All">All Sizes</option>
+              <option value="Small">Small (&le; 50 cm - e.g. Shama)</option>
+              <option value="Large">Large (&gt; 50 cm - e.g. Hornbill, Peafowl, Crane)</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs font-bold uppercase text-slate-300">Dominant Plumage Color</label>
+            <select id="wizardColor" class="input">
+              <option value="All">All Colors</option>
+              <option value="Yellow">Yellow / Gold</option>
+              <option value="Green">Green / Emerald</option>
+              <option value="Black">Glossy Black</option>
+              <option value="Red">Red / Orange highlights</option>
+              <option value="Grey">Grey / Slate</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs font-bold uppercase text-slate-300">Ecological Habitat</label>
+            <select id="wizardHabitat" class="input">
+              <option value="All">All Habitats</option>
+              <option value="Canopy">Primary Canopy Forest</option>
+              <option value="Deciduous">Deciduous Forest</option>
+              <option value="Wetlands">Wetlands & Plains</option>
+              <option value="Bamboo">Bamboo Jungle</option>
+            </select>
+          </div>
+        </form>
+
+        <div class="space-y-3 pt-4 border-t border-white/5">
+          <h3 class="text-xs font-bold uppercase text-slate-400 tracking-wider">Matched Species Recommendations</h3>
+          <div id="wizardResultsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Populated dynamically via script.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- TAB: FIELD OBSERVATIONS -->
+    <section id="tab-observations" class="panel space-y-6">
+      
+      <!-- Sighting Logger Form -->
+      <div class="panel-card space-y-4">
+        <h2 class="text-2xl font-bold text-emerald-400">Log Field Observation</h2>
+        <form id="observationForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs font-bold text-slate-300 block mb-1">Target Taxon/Bird</label>
+              <select id="observationTaxon" class="input" required></select>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-300 block mb-1">State / Region of Observation</label>
+              <select id="observationRegion" class="input" required></select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-xs font-bold text-slate-300 block mb-1">Count</label>
+                <input id="observationCount" type="number" min="1" value="1" class="input" required />
+              </div>
+              <div>
+                <label class="text-xs font-bold text-slate-300 block mb-1">Observation Date</label>
+                <input id="observationDate" type="date" class="input" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-xs font-bold text-slate-300 block mb-1">Latitude (optional)</label>
+                <input id="observationLatitude" type="number" step="0.0001" placeholder="21.9" class="input" />
+              </div>
+              <div>
+                <label class="text-xs font-bold text-slate-300 block mb-1">Longitude (optional)</label>
+                <input id="observationLongitude" type="number" step="0.0001" placeholder="95.9" class="input" />
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-300 block mb-1">Observer Name</label>
+              <input id="observationObserver" type="text" placeholder="Your name" class="input" required />
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-300 block mb-1">Sighting Photo (optional)</label>
+              <input id="observationPhoto" type="file" accept="image/*" class="input" />
+            </div>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="text-xs font-bold text-slate-300 block mb-1">Field Habitat & Behavior Notes</label>
+            <textarea id="observationNotes" rows="3" placeholder="Describe calling/song activity, flight behavior, or canopy heights..." class="input"></textarea>
+          </div>
+
+          <div class="md:col-span-2 pt-2">
+            <button type="submit" class="btn-primary w-full md:w-auto">Submit Sighting Entry</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Historical & Modern Sightings Archive -->
+      <div class="panel-card space-y-4">
+        <h3 class="text-xl font-bold">Field Sightings Log</h3>
+        <div id="observationsList" class="space-y-3">
+          <!-- Populated dynamically via script.js -->
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- TAB: DOCUMENT ARCHIVE -->
+    <section id="tab-documents" class="panel space-y-6">
+      
+      <!-- Document upload wrapper -->
+      <div class="panel-card space-y-4">
+        <h2 class="text-2xl font-bold text-emerald-400">Biodiversity Documents & Literature</h2>
+        <p class="text-sm text-slate-400">Contribute research papers, historical checklists, or bird guide pamphlets to the local archive.</p>
+        
+        <form id="documentForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs font-bold text-slate-300 block mb-1">Document Title</label>
+              <input id="documentTitle" type="text" placeholder="e.g. Birds of Nat Ma Taung Checklist" class="input" required />
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-300 block mb-1">Literature Category</label>
+              <select id="documentCategory" class="input">
+                <option value="Checklist">Checklist</option>
+                <option value="Research Paper">Research Paper</option>
+                <option value="Survey Report">Survey Report</option>
+                <option value="Field Notes">Field Notes</option>
+                <option value="Photo Reference">Photo Reference</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-xs font-bold text-slate-300 block mb-1">Author / Source</label>
+                <input id="documentSource" type="text" placeholder="e.g. Dr. Hla Kyaw" class="input" required />
+              </div>
+              <div>
+                <label class="text-xs font-bold text-slate-300 block mb-1">Publication Year</label>
+                <input id="documentYear" type="number" min="1800" max="2026" value="2026" class="input" required />
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-300 block mb-1">Upload File (PDF / Images)</label>
+              <input id="documentFile" type="file" class="input" />
+            </div>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="text-xs font-bold text-slate-300 block mb-1">Short Summary / Description</label>
+            <textarea id="documentSummary" rows="3" placeholder="Brief explanation of the research content..." class="input"></textarea>
+          </div>
+
+          <div class="md:col-span-2">
+            <button type="submit" class="btn-primary">Add to Archive</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="panel-card space-y-4">
+        <h3 class="text-xl font-bold">Uploaded Documents Catalog</h3>
+        <div id="documentsList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Populated dynamically via script.js -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- TAB: ABOUT / ARCHIVE DETAILS -->
+    <section id="tab-about" class="panel space-y-6">
+      <div class="panel-card max-w-4xl mx-auto space-y-6 p-8">
+        <h2 class="text-3xl font-black bg-gradient-to-r from-emerald-400 to-amber-300 bg-clip-text text-transparent">
+          About Myanmar Biodiversity Info System
+        </h2>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          The Myanmar (Burma) Biodiversity Information System is designed to act as an archival platform for historical, ecological, and modern avian literature.
+        </p>
+
+        <div class="border-t border-white/10 pt-6 space-y-4">
+          <h3 class="text-lg font-bold text-slate-200">Historical Sources Utilized</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-slate-900 p-4 rounded-xl border border-white/5 space-y-2">
+              <h4 class="font-bold text-amber-400">1909: Birds of Burma</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                By Major H.H. Harington. Written at the height of military survey expeditions, documenting primary forests that are now significantly degraded.
+              </p>
+            </div>
+            <div class="bg-slate-900 p-4 rounded-xl border border-white/5 space-y-2">
+              <h4 class="font-bold text-amber-400">1953: The Birds of Burma</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                By Bertram E. Smythies. Legendary comprehensive ornithological catalogue, displaying extensive research on breeding behaviors across the Ayeyarwady Delta and Chin state hills.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="mt-auto border-t border-white/10 bg-slate-950 py-8 text-center text-xs text-slate-500">
+    <div class="mx-auto max-w-7xl px-4 space-y-2">
+      <p>🇲🇲 Myanmar Biodiversity Information System (MBIS) Portal.</p>
+      <p class="text-[10px] text-slate-600">
+        Source reference texts courtesy of the Burma Forest Service classical libraries. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Code Injection from local JavaScript files -->
+  <script src="api.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
