@@ -191,16 +191,45 @@ function guessTaxonIdFromName(name) {
 }
 async function refreshAll() {
   try {
-    state.species = await apiGet("/species?module=birds");
-    state.observations = await apiGet("/observations");
-    state.identifications = await apiGet("/identifications");
-    state.documents = await apiGet("/documents");
+    const [
+      species,
+      observations,
+      identifications,
+      documents
+    ] = await Promise.all([
+      apiGet("/species?module=birds"),
+      apiGet("/observations"),
+      apiGet("/identifications"),
+      apiGet("/documents")
+    ]);
+
+    state.species = species;
+    state.observations = observations;
+    state.identifications = identifications;
+    state.documents = documents;
     state.filteredSpecies = [...state.species];
-    renderOptions(); renderStats(); renderSpeciesCards(); renderLists(); setFeaturedCard();
+
+    renderStats();
+    renderSpeciesCards();
+    renderOptions();
+    renderLists();
+
+    try {
+      setFeaturedCard();
+    } catch (heroErr) {
+      console.error("Hero update failed:", heroErr);
+    }
   } catch (err) {
     console.error(err);
-    const grid = $("#statsGrid");
-    if (grid) grid.innerHTML = `<div class="stat-card col-span-full"><p class="font-semibold text-rose-300">API connection failed</p><p class="mt-1 text-sm text-slate-300">${err.message || "Could not connect to BBIS API."}</p></div>`;
+    const grid = document.getElementById("statsGrid");
+    if (grid) {
+      grid.innerHTML = 
+        <div class="stat-card col-span-full">
+          <p class="font-semibold text-rose-300">API connection failed</p>
+          <p class="mt-1 text-sm text-slate-300">${err.message || "Could not connect to BBIS API."}</p>
+        </div>
+      ;
+    }
   }
 }
 function wireIdentifyForm() {
